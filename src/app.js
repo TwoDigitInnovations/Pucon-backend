@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
-const connectDB = require("@config/db");
+const connectDB = require("./config/db");
 
 // Initialize Express app
 const app = express();
@@ -12,7 +12,11 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(cors());
+const corsOptions = {
+  origin: 'https://admin.travelertips.cl',
+  optionSuccessStatus: 200
+}
+app.use(cors(corsOptions));
 app.use(helmet());
 app.use(morgan("dev"));
 
@@ -24,13 +28,13 @@ app.use((req, res, next) => {
   console.log('Method:', req.method);
   console.log('URL:', req.url);
   console.log('=== END MIDDLEWARE DEBUG ===');
-  
+
   // Skip JSON parsing for multipart requests
   if (contentType && contentType.includes('multipart/form-data')) {
     console.log('Skipping JSON parsing for multipart request');
     return next();
   }
-  
+
   // Parse JSON for other requests
   express.json({ limit: '10mb' })(req, res, next);
 });
