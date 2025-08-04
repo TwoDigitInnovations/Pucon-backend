@@ -34,11 +34,11 @@ const languageController = {
       if (req.file) {
         const imageFile = req.file;
         console.log('Processing image upload:', imageFile.originalname);
-        
+
         try {
           // Convert buffer to base64 for Cloudinary
           const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'languages',
             resource_type: 'auto',
@@ -59,9 +59,9 @@ const languageController = {
 
       console.log('Final imageUrl before saving:', imageUrl);
 
-      const newLanguage = new Language({ 
-        language_name, 
-        language_code, 
+      const newLanguage = new Language({
+        language_name,
+        language_code,
         status,
         image: imageUrl
       });
@@ -91,10 +91,10 @@ const languageController = {
 
       // Get total count for pagination
       const totalCount = await Language.countDocuments();
-      
+
       // Get paginated data
       const languages = await Language.find()
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: 1 })
         .skip(skip)
         .limit(limit);
 
@@ -181,7 +181,7 @@ const languageController = {
           // Convert buffer to base64 for Cloudinary
           const imageFile = req.file;
           const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'languages',
             resource_type: 'auto',

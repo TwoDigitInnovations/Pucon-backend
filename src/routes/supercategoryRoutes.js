@@ -16,5 +16,6 @@ router.post("/", upload.single('image'), superCategoryController.create);
 router.get("/", superCategoryController.getAll);
 router.put("/:id", upload.single('image'), superCategoryController.update);
 router.delete("/:id", superCategoryController.delete);
+router.post("/superCategoryById", superCategoryController.superCategoryById);
 
 module.exports = router;

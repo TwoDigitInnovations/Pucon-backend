@@ -6,19 +6,19 @@ const cloudinary = require('../config/cloudinary');
 const countryController = {
 
 
-createCountry: async (req, res) => {
+  createCountry: async (req, res) => {
     try {
       console.log('=== CREATE COUNTRY DEBUG ===');
       console.log('Full request body:', JSON.stringify(req.body, null, 2));
       console.log('Request body keys:', Object.keys(req.body));
       console.log('country_name type:', typeof req.body.country_name);
       console.log('country_name value:', req.body.country_name);
-      
+
       if (req.body.country_name) {
         console.log('country_name.en:', req.body.country_name.en);
         console.log('country_name.hi:', req.body.country_name.hi);
       }
-      
+
       console.log('country_code:', req.body.country_code);
       console.log('status:', req.body.status);
       console.log('Files:', req.files ? Object.keys(req.files) : 'No files');
@@ -31,8 +31,8 @@ createCountry: async (req, res) => {
 
       // Validate required fields
       if (!country_name || !country_code || !language_id) {
-        console.log('Validation failed:', { 
-          country_name, 
+        console.log('Validation failed:', {
+          country_name,
           country_code,
           language_id
         });
@@ -42,23 +42,23 @@ createCountry: async (req, res) => {
         });
       }
 
-      const exists = await Country.findOne({ country_code });
-      if (exists) {
-        return res.status(400).json({
-          success: false,
-          message: 'Country code already exists',
-        });
-      }
+      // const exists = await Country.findOne({ country_code });
+      // if (exists) {
+      //   return res.status(400).json({
+      //     success: false,
+      //     message: 'Country code already exists',
+      //   });
+      // }
 
       // Handle flag image upload if file is present
       if (req.files && req.files.image && req.files.image[0]) {
         const flagFile = req.files.image[0];
         console.log('Processing flag image upload:', flagFile.originalname);
-        
+
         try {
           // Convert buffer to base64 for Cloudinary
           const base64Image = `data:${flagFile.mimetype};base64,${flagFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'countries/flags',
             resource_type: 'auto',
@@ -79,11 +79,11 @@ createCountry: async (req, res) => {
       if (req.files && req.files.map_image && req.files.map_image[0]) {
         const mapFile = req.files.map_image[0];
         console.log('Processing map image upload:', mapFile.originalname);
-        
+
         try {
           // Convert buffer to base64 for Cloudinary
           const base64Image = `data:${mapFile.mimetype};base64,${mapFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'countries/maps',
             resource_type: 'auto',
@@ -100,10 +100,10 @@ createCountry: async (req, res) => {
         }
       }
 
-      const newCountry = new Country({ 
+      const newCountry = new Country({
         language_id,
-        country_name: country_name, 
-        country_code, 
+        country_name: country_name,
+        country_code,
         status,
         image: imageUrl,
         map_image: mapImageUrl
@@ -131,7 +131,7 @@ createCountry: async (req, res) => {
 
       // Get total count for pagination
       const totalCount = await Country.countDocuments();
-      
+
       // Get paginated data with populated language
       const countries = await Country.find()
         .populate('language_id')
@@ -162,6 +162,26 @@ createCountry: async (req, res) => {
     }
   },
 
+  getAllCountriesByLang: async (req, res) => {
+    console.log(req.params)
+    try {
+
+      // Get paginated data with populated language
+      const countries = await Country.find({ language_id: req.params.lang_id }).sort({ createdAt: -1 })
+
+
+      res.status(200).json({
+        success: true,
+        message: 'Countries fetched successfully',
+        data: countries,
+
+      });
+    } catch (error) {
+      console.error('Error in getAllCountries:', error);
+      res.status(500).json({ success: false, message: 'Server error' });
+    }
+  },
+
   getCountryById: async (req, res) => {
     try {
       const { id } = req.params;
@@ -180,13 +200,13 @@ createCountry: async (req, res) => {
     try {
       const { id } = req.params;
       const updateData = { ...req.body };
-      
+
       // Extract country_name if it exists
       const { country_name } = req.body;
       if (country_name) {
         updateData.country_name = country_name;
       }
-      
+
       let imageUrl = null;
       let mapImageUrl = null;
 
@@ -203,7 +223,7 @@ createCountry: async (req, res) => {
           // Convert buffer to base64 for Cloudinary
           const flagFile = req.files.image[0];
           const base64Image = `data:${flagFile.mimetype};base64,${flagFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'countries/flags',
             resource_type: 'auto',
@@ -233,7 +253,7 @@ createCountry: async (req, res) => {
           // Convert buffer to base64 for Cloudinary
           const mapFile = req.files.map_image[0];
           const base64Image = `data:${mapFile.mimetype};base64,${mapFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'countries/maps',
             resource_type: 'auto',
@@ -264,7 +284,7 @@ createCountry: async (req, res) => {
   deleteCountry: async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       // Delete images from Cloudinary if exists
       const country = await Country.findById(id);
       if (country) {

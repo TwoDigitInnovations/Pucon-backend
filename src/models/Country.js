@@ -9,12 +9,11 @@ const countrySchema = new mongoose.Schema({
   country_name: {
     type: String,
     required: true
-    
+
   },
   country_code: {
     type: String,
     required: true,
-    unique: true
   },
   image: {
     type: String,

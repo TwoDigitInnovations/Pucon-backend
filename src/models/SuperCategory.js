@@ -24,6 +24,11 @@ const superCategorySchema = new mongoose.Schema(
       enum: ["active", "inactive"],
       default: "active",
     },
+    country: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Country",
+      required: true,
+    },
   },
   {
     timestamps: true,

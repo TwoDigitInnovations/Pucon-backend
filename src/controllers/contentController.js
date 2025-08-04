@@ -90,7 +90,7 @@ const contentController = {
 
       // Get total count for pagination
       const totalCount = await Content.countDocuments();
-      
+
       // Get paginated data with populated fields
       const contents = await Content.find()
         .populate('language_id')
@@ -167,6 +167,20 @@ const contentController = {
     } catch (error) {
       console.error('Error in deleteContent:', error);
       res.status(500).json({ success: false, message: 'Server error' });
+    }
+  },
+
+  contentBySubCategoryId: async (req, res) => {
+    try {
+      const content = await Content.findOne({ language_id: req.body.language_id, country_id: req.body.country_id, sub_category_id: req.body.sub_category_id });
+      res.status(200).json({
+        success: true,
+        // message: "Super Category deleted successfully",
+        data: content,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Server error');
     }
   },
 };

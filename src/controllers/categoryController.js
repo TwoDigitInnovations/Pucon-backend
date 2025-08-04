@@ -30,11 +30,11 @@ const categoryController = {
       if (req.file) {
         const imageFile = req.file;
         console.log('Processing image upload:', imageFile.originalname);
-        
+
         try {
           // Convert buffer to base64 for Cloudinary
           const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'categories',
             resource_type: 'auto',
@@ -55,10 +55,10 @@ const categoryController = {
 
       console.log('Final imageUrl before saving:', imageUrl);
 
-      const newCategory = new Category({ 
+      const newCategory = new Category({
         language_id,
-        super_category_id, 
-        name: name, 
+        super_category_id,
+        name: name,
         status,
         image: imageUrl
       });
@@ -85,7 +85,7 @@ const categoryController = {
 
       // Get total count for pagination
       const totalCount = await Category.countDocuments();
-      
+
       // Get paginated data with populated fields
       const data = await Category.find()
         .populate("super_category_id", "name")
@@ -149,7 +149,7 @@ const categoryController = {
           // Convert buffer to base64 for Cloudinary
           const imageFile = req.file;
           const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'categories',
             resource_type: 'auto',
@@ -189,7 +189,7 @@ const categoryController = {
   delete: async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       // Delete image from Cloudinary if exists
       const category = await Category.findById(id);
       if (category && category.image) {
@@ -218,6 +218,31 @@ const categoryController = {
       res.status(500).json({ success: false, message: "Server error" });
     }
   },
+
+  getCategoryBySuperCategoryId: async (req, res) => {
+    try {
+      const category = await Category.find({ super_category_id: req.body.super_category_id, language_id: req.body.language_id });
+      res.status(200).json({
+        success: true,
+        // message: "Super Category deleted successfully",
+        data: category,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Server error');
+    }
+  },
+
+  // getCountryByLanguageId: async (req, res) => {
+  //   console.log('AAAAAAA', req.body)
+  //   try {
+  //     const category = await Category.find({ language_id: req.body.language_id });
+  //     res.status(200).json(category);
+  //   } catch (error) {
+  //     console.error(error);
+  //     res.status(500).send('Server error');
+  //   }
+  // },
 };
 
 module.exports = categoryController;

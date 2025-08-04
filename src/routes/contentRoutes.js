@@ -6,5 +6,6 @@ router.post('/', contentController.createContent);
 router.get('/', contentController.getAllContent);
 router.put('/:id', contentController.updateContent);
 router.delete('/:id', contentController.deleteContent);
+router.post("/contentBySubCategoryId", contentController.contentBySubCategoryId);
 
 module.exports = router;

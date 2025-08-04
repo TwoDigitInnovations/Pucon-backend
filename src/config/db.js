@@ -4,6 +4,7 @@ mongoose.Promise = global.Promise;
 
 const connectDB = async () => {
     try {
+        console.log('Mongoose connected', process.env.MONGO_URI);
         await mongoose.connect(process.env.MONGO_URI);
         console.log('Mongoose connected');
     } catch (error) {

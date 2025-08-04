@@ -10,7 +10,7 @@ const superCategoryController = {
       console.log('req.files:', req.files);
       console.log('=== END DEBUG ===');
 
-      const { name, description, status, language_id } = req.body;
+      const { name, description, status, language_id, country } = req.body;
       let imageUrl = null;
 
       // Validate required fields
@@ -26,11 +26,11 @@ const superCategoryController = {
       if (req.file) {
         const imageFile = req.file;
         console.log('Processing image upload:', imageFile.originalname);
-        
+
         try {
           // Convert buffer to base64 for Cloudinary
           const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'supercategories',
             resource_type: 'auto',
@@ -51,11 +51,12 @@ const superCategoryController = {
 
       console.log('Final imageUrl before saving:', imageUrl);
 
-      const newSuperCategory = new SuperCategory({ 
+      const newSuperCategory = new SuperCategory({
         language_id,
-        name: name, 
-        description: description, 
+        name: name,
+        description: description,
         status,
+        country,
         image: imageUrl
       });
       await newSuperCategory.save();
@@ -81,7 +82,7 @@ const superCategoryController = {
 
       // Get total count for pagination
       const totalCount = await SuperCategory.countDocuments();
-      
+
       // Get paginated data with populated language
       const data = await SuperCategory.find()
         .populate('language_id')
@@ -133,7 +134,7 @@ const superCategoryController = {
           // Convert buffer to base64 for Cloudinary
           const imageFile = req.file;
           const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'supercategories',
             resource_type: 'auto',
@@ -173,7 +174,7 @@ const superCategoryController = {
   delete: async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       // Delete image from Cloudinary if exists
       const superCategory = await SuperCategory.findById(id);
       if (superCategory && superCategory.image) {
@@ -200,6 +201,20 @@ const superCategoryController = {
     } catch (error) {
       console.error("Error in delete super category:", error);
       res.status(500).json({ success: false, message: "Server error" });
+    }
+  },
+
+  superCategoryById: async (req, res) => {
+    try {
+      const superCategory = await SuperCategory.find({ language_id: req.body.language_id, country: req.body.country });
+      res.status(200).json({
+        success: true,
+        // message: "Super Category deleted successfully",
+        data: superCategory,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Server error');
     }
   },
 };
