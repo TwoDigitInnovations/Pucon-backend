@@ -16,7 +16,7 @@ const corsOptions = {
   origin: 'https://admin.travelertips.cl',
   optionSuccessStatus: 200
 }
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(helmet());
 app.use(morgan("dev"));
 
