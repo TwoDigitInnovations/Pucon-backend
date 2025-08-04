@@ -156,17 +156,17 @@ const languageController = {
       let imageUrl = null;
 
       // Parse language_name if it's a string
-      if (req.body.language_name && typeof req.body.language_name === 'string') {
-        try {
-          updateData.language_name = JSON.parse(req.body.language_name);
-        } catch (parseError) {
-          console.error('Error parsing language_name:', parseError);
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid language_name format',
-          });
-        }
-      }
+      // if (req.body.language_name && typeof req.body.language_name === 'string') {
+      //   try {
+      //     updateData.language_name = JSON.parse(req.body.language_name);
+      //   } catch (parseError) {
+      //     console.error('Error parsing language_name:', parseError);
+      //     return res.status(400).json({
+      //       success: false,
+      //       message: 'Invalid language_name format',
+      //     });
+      //   }
+      // }
 
       // Handle image upload if file is present
       if (req.file) {
