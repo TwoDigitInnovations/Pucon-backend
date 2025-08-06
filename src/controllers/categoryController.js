@@ -83,11 +83,18 @@ const categoryController = {
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
 
+      let cond = {}
+      if (req.query.search) {
+        cond['$or'] = [
+          { name: { $regex: req.query.search, $options: "i" } },
+        ]
+      }
+
       // Get total count for pagination
-      const totalCount = await Category.countDocuments();
+      const totalCount = await Category.countDocuments(cond);
 
       // Get paginated data with populated fields
-      const data = await Category.find()
+      const data = await Category.find(cond)
         .populate("super_category_id", "name")
         .populate("language_id")
         .sort({ createdAt: -1 })
@@ -124,17 +131,17 @@ const categoryController = {
       let imageUrl = null;
 
       // Parse name if it's a string
-      if (req.body.name && typeof req.body.name === 'string') {
-        try {
-          updateData.name = JSON.parse(req.body.name);
-        } catch (parseError) {
-          console.error('Error parsing name:', parseError);
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid name format',
-          });
-        }
-      }
+      // if (req.body.name && typeof req.body.name === 'string') {
+      //   try {
+      //     updateData.name = JSON.parse(req.body.name);
+      //   } catch (parseError) {
+      //     console.error('Error parsing name:', parseError);
+      //     return res.status(400).json({
+      //       success: false,
+      //       message: 'Invalid name format',
+      //     });
+      //   }
+      // }
 
       // Handle image upload if file is present
       if (req.file) {

@@ -88,12 +88,19 @@ const languageController = {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
+      let cond = {}
+      if (req.query.search) {
+        cond['$or'] = [
+          { language_name: { $regex: req.query.search, $options: "i" } },
+          { language_code: { $regex: req.query.search, $options: "i" } },
+        ]
+      }
 
       // Get total count for pagination
-      const totalCount = await Language.countDocuments();
+      const totalCount = await Language.countDocuments(cond);
 
       // Get paginated data
-      const languages = await Language.find()
+      const languages = await Language.find(cond)
         .sort({ createdAt: 1 })
         .skip(skip)
         .limit(limit);

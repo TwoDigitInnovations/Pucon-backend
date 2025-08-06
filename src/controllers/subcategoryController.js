@@ -26,11 +26,11 @@ const subCategoryController = {
       if (req.file) {
         const imageFile = req.file;
         console.log('Processing image upload:', imageFile.originalname);
-        
+
         try {
           // Convert buffer to base64 for Cloudinary
           const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'subcategories',
             resource_type: 'auto',
@@ -51,10 +51,10 @@ const subCategoryController = {
 
       console.log('Final imageUrl before saving:', imageUrl);
 
-      const newSubCategory = new SubCategory({ 
+      const newSubCategory = new SubCategory({
         language_id,
-        category_id, 
-        name: name, 
+        category_id,
+        name: name,
         status,
         image: imageUrl
       });
@@ -86,11 +86,18 @@ const subCategoryController = {
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
 
+      let cond = {}
+      if (req.query.search) {
+        cond['$or'] = [
+          { name: { $regex: req.query.search, $options: "i" } },
+        ]
+      }
+
       // Get total count for pagination
-      const totalCount = await SubCategory.countDocuments();
-      
+      const totalCount = await SubCategory.countDocuments(cond);
+
       // Get paginated data with populated fields
-      const subCategories = await SubCategory.find()
+      const subCategories = await SubCategory.find(cond)
         .populate('category_id', 'name')
         .populate('language_id')
         .sort({ createdAt: -1 })
@@ -130,17 +137,17 @@ const subCategoryController = {
       let imageUrl = null;
 
       // Parse name if it's a string
-      if (req.body.name && typeof req.body.name === 'string') {
-        try {
-          updateData.name = JSON.parse(req.body.name);
-        } catch (parseError) {
-          console.error('Error parsing name:', parseError);
-          return res.status(400).json({
-            success: false,
-            message: 'Invalid name format',
-          });
-        }
-      }
+      // if (req.body.name && typeof req.body.name === 'string') {
+      //   try {
+      //     updateData.name = JSON.parse(req.body.name);
+      //   } catch (parseError) {
+      //     console.error('Error parsing name:', parseError);
+      //     return res.status(400).json({
+      //       success: false,
+      //       message: 'Invalid name format',
+      //     });
+      //   }
+      // }
 
       // Handle image upload if file is present
       if (req.file) {
@@ -155,7 +162,7 @@ const subCategoryController = {
           // Convert buffer to base64 for Cloudinary
           const imageFile = req.file;
           const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
-          
+
           const result = await cloudinary.uploader.upload(base64Image, {
             folder: 'subcategories',
             resource_type: 'auto',
@@ -199,7 +206,7 @@ const subCategoryController = {
   deleteSubCategory: async (req, res) => {
     try {
       const { id } = req.params;
-      
+
       // Delete image from Cloudinary if exists
       const subCategory = await SubCategory.findById(id);
       if (subCategory && subCategory.image) {

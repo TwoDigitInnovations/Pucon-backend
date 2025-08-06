@@ -129,11 +129,18 @@ const countryController = {
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
 
+      let cond = {}
+      if (req.query.search) {
+        cond['$or'] = [
+          { country_name: { $regex: req.query.search, $options: "i" } },
+        ]
+      }
+
       // Get total count for pagination
-      const totalCount = await Country.countDocuments();
+      const totalCount = await Country.countDocuments(cond);
 
       // Get paginated data with populated language
-      const countries = await Country.find()
+      const countries = await Country.find(cond)
         .populate('language_id')
         .sort({ createdAt: -1 })
         .skip(skip)

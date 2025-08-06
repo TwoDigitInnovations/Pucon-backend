@@ -80,11 +80,18 @@ const superCategoryController = {
       const limit = parseInt(req.query.limit) || 10;
       const skip = (page - 1) * limit;
 
+      let cond = {}
+      if (req.query.search) {
+        cond['$or'] = [
+          { name: { $regex: req.query.search, $options: "i" } },
+        ]
+      }
+
       // Get total count for pagination
-      const totalCount = await SuperCategory.countDocuments();
+      const totalCount = await SuperCategory.countDocuments(cond);
 
       // Get paginated data with populated language
-      const data = await SuperCategory.find()
+      const data = await SuperCategory.find(cond)
         .populate('language_id')
         .sort({ createdAt: -1 })
         .skip(skip)
