@@ -19,26 +19,27 @@ const countryController = {
         console.log('country_name.hi:', req.body.country_name.hi);
       }
 
-      console.log('country_code:', req.body.country_code);
+      // console.log('country_code:', req.body.country_code);
       console.log('status:', req.body.status);
       console.log('Files:', req.files ? Object.keys(req.files) : 'No files');
       console.log('=== END DEBUG ===');
 
       // Extract country_name and other fields
-      const { country_name, country_code, status, language_id } = req.body;
+      const { country_name, status, language_id } = req.body;
       let imageUrl = null;
       let mapImageUrl = null;
 
+      // country_code
+
       // Validate required fields
-      if (!country_name || !country_code || !language_id) {
+      if (!country_name || !language_id) {
         console.log('Validation failed:', {
           country_name,
-          country_code,
           language_id
         });
         return res.status(400).json({
           success: false,
-          message: 'country_name, country_code, and language_id are required',
+          message: 'City name, and language are required',
         });
       }
 
@@ -103,7 +104,7 @@ const countryController = {
       const newCountry = new Country({
         language_id,
         country_name: country_name,
-        country_code,
+        // country_code,
         status,
         image: imageUrl,
         map_image: mapImageUrl

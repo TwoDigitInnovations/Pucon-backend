@@ -15,7 +15,7 @@ const categorySchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      
+
     },
     image: {
       type: String,
@@ -25,6 +25,11 @@ const categorySchema = new mongoose.Schema(
       type: String,
       enum: ["active", "inactive"],
       default: "active",
+    },
+    country: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Country",
+      required: true,
     },
   },
   {

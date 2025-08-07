@@ -93,6 +93,7 @@ const superCategoryController = {
       // Get paginated data with populated language
       const data = await SuperCategory.find(cond)
         .populate('language_id')
+        .populate('country')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);

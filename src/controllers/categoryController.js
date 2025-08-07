@@ -97,6 +97,7 @@ const categoryController = {
       const data = await Category.find(cond)
         .populate("super_category_id", "name")
         .populate("language_id")
+        .populate("country")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);

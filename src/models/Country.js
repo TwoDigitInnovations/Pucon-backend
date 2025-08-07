@@ -13,7 +13,7 @@ const countrySchema = new mongoose.Schema({
   },
   country_code: {
     type: String,
-    required: true,
+    // required: true,
   },
   image: {
     type: String,

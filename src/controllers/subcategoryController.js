@@ -100,6 +100,8 @@ const subCategoryController = {
       const subCategories = await SubCategory.find(cond)
         .populate('category_id', 'name')
         .populate('language_id')
+        .populate('super_category_id')
+        .populate('country')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
