@@ -9,7 +9,8 @@ const contentController = {
 
       let {
         language_id,
-        country_id,
+        // country_id,
+        country,
         super_category_id,
         category_id,
         sub_category_id,
@@ -19,7 +20,8 @@ const contentController = {
 
       console.log('Extracted values:', {
         language_id,
-        country_id,
+        // country_id,
+        country,
         super_category_id,
         category_id,
         sub_category_id,
@@ -27,10 +29,11 @@ const contentController = {
         status
       });
 
-      if (!language_id || !country_id || !super_category_id || !category_id || !sub_category_id) {
+      if (!language_id || !country || !super_category_id || !category_id || !sub_category_id) {
         console.log('Validation failed - missing fields:', {
           hasLanguageId: !!language_id,
-          hasCountryId: !!country_id,
+          // hasCountryId: !!country_id,
+          hasCountryId: !!country,
           hasSuperCategoryId: !!super_category_id,
           hasCategoryId: !!category_id,
           hasSubCategoryId: !!sub_category_id,
@@ -53,7 +56,8 @@ const contentController = {
 
       const newContent = new Content({
         language_id,
-        country_id,
+        // country_id,
+        country,
         super_category_id,
         category_id,
         sub_category_id,
@@ -66,7 +70,7 @@ const contentController = {
       // Populate the saved content before sending response
       const populatedContent = await Content.findById(newContent._id)
         .populate('language_id')
-        .populate('country_id')
+        .populate('country')
         .populate('super_category_id')
         .populate('category_id')
         .populate('sub_category_id');
@@ -94,7 +98,7 @@ const contentController = {
       // Get paginated data with populated fields
       const contents = await Content.find()
         .populate('language_id')
-        .populate('country_id')
+        .populate('country')
         .populate('super_category_id')
         .populate('category_id')
         .populate('sub_category_id')
@@ -130,7 +134,7 @@ const contentController = {
       const { id } = req.params;
       const updated = await Content.findByIdAndUpdate(id, req.body, { new: true })
         .populate('language_id')
-        .populate('country_id')
+        .populate('country')
         .populate('super_category_id')
         .populate('category_id')
         .populate('sub_category_id');
@@ -172,7 +176,7 @@ const contentController = {
 
   contentBySubCategoryId: async (req, res) => {
     try {
-      const content = await Content.findOne({ language_id: req.body.language_id, country_id: req.body.country_id, sub_category_id: req.body.sub_category_id });
+      const content = await Content.findOne({ language_id: req.body.language_id, country: req.body.country, sub_category_id: req.body.sub_category_id });
       res.status(200).json({
         success: true,
         // message: "Super Category deleted successfully",
