@@ -6,11 +6,11 @@ const contentSchema = new mongoose.Schema({
     ref: 'Language',
     required: true,
   },
-  country_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Country',
-    required: true,
-  },
+  // country_id: {
+  //   type: mongoose.Schema.Types.ObjectId,
+  //   ref: 'Country',
+  //   required: true,
+  // },
   super_category_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SuperCategory',
@@ -27,13 +27,18 @@ const contentSchema = new mongoose.Schema({
     required: true,
   },
   content: {
-    type: String, 
+    type: String,
     required: true,
   },
   status: {
     type: String,
     enum: ['active', 'inactive'],
     default: 'active',
+  },
+  country: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Country",
+    required: true,
   },
 }, { timestamps: true });
 
