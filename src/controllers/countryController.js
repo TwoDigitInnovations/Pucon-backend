@@ -177,7 +177,6 @@ const countryController = {
       // Get paginated data with populated language
       const countries = await Country.find({ language_id: req.params.lang_id }).sort({ createdAt: -1 })
 
-
       res.status(200).json({
         success: true,
         message: 'Countries fetched successfully',
