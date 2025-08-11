@@ -8,21 +8,21 @@ const countryController = {
 
   createCountry: async (req, res) => {
     try {
-      console.log('=== CREATE COUNTRY DEBUG ===');
-      console.log('Full request body:', JSON.stringify(req.body, null, 2));
-      console.log('Request body keys:', Object.keys(req.body));
-      console.log('country_name type:', typeof req.body.country_name);
-      console.log('country_name value:', req.body.country_name);
+      // console.log('=== CREATE COUNTRY DEBUG ===');
+      // console.log('Full request body:', JSON.stringify(req.body, null, 2));
+      // console.log('Request body keys:', Object.keys(req.body));
+      // console.log('country_name type:', typeof req.body.country_name);
+      // console.log('country_name value:', req.body.country_name);
 
       if (req.body.country_name) {
-        console.log('country_name.en:', req.body.country_name.en);
-        console.log('country_name.hi:', req.body.country_name.hi);
+        // console.log('country_name.en:', req.body.country_name.en);
+        // console.log('country_name.hi:', req.body.country_name.hi);
       }
 
       // console.log('country_code:', req.body.country_code);
-      console.log('status:', req.body.status);
-      console.log('Files:', req.files ? Object.keys(req.files) : 'No files');
-      console.log('=== END DEBUG ===');
+      // console.log('status:', req.body.status);
+      // console.log('Files:', req.files ? Object.keys(req.files) : 'No files');
+      // console.log('=== END DEBUG ===');
 
       // Extract country_name and other fields
       const { country_name, status, language_id } = req.body;
@@ -33,10 +33,10 @@ const countryController = {
 
       // Validate required fields
       if (!country_name || !language_id) {
-        console.log('Validation failed:', {
-          country_name,
-          language_id
-        });
+        // console.log('Validation failed:', {
+        //   country_name,
+        //   language_id
+        // });
         return res.status(400).json({
           success: false,
           message: 'City name, and language are required',
@@ -54,7 +54,7 @@ const countryController = {
       // Handle flag image upload if file is present
       if (req.files && req.files.image && req.files.image[0]) {
         const flagFile = req.files.image[0];
-        console.log('Processing flag image upload:', flagFile.originalname);
+        // console.log('Processing flag image upload:', flagFile.originalname);
 
         try {
           // Convert buffer to base64 for Cloudinary
@@ -66,7 +66,7 @@ const countryController = {
             timeout: 60000 // 60 second timeout
           });
           imageUrl = result.secure_url;
-          console.log('Flag image uploaded successfully:', imageUrl);
+          // console.log('Flag image uploaded successfully:', imageUrl);
         } catch (uploadError) {
           console.error('Cloudinary upload error for flag:', uploadError);
           return res.status(500).json({
@@ -79,7 +79,7 @@ const countryController = {
       // Handle map image upload if file is present
       if (req.files && req.files.map_image && req.files.map_image[0]) {
         const mapFile = req.files.map_image[0];
-        console.log('Processing map image upload:', mapFile.originalname);
+        // console.log('Processing map image upload:', mapFile.originalname);
 
         try {
           // Convert buffer to base64 for Cloudinary
@@ -91,7 +91,7 @@ const countryController = {
             timeout: 60000 // 60 second timeout
           });
           mapImageUrl = result.secure_url;
-          console.log('Map image uploaded successfully:', mapImageUrl);
+          // console.log('Map image uploaded successfully:', mapImageUrl);
         } catch (uploadError) {
           console.error('Cloudinary upload error for map:', uploadError);
           return res.status(500).json({
@@ -111,7 +111,7 @@ const countryController = {
       });
       await newCountry.save();
 
-      console.log('Country created successfully:', newCountry._id);
+      // console.log('Country created successfully:', newCountry._id);
 
       res.status(201).json({
         success: true,
@@ -171,7 +171,7 @@ const countryController = {
   },
 
   getAllCountriesByLang: async (req, res) => {
-    console.log(req.params)
+    // console.log(req.params)
     try {
 
       // Get paginated data with populated language
@@ -318,8 +318,24 @@ const countryController = {
       console.error('Error in deleteCountry:', error);
       res.status(500).json({ success: false, message: 'Server error' });
     }
-  }
+  },
 
+  getAllCountry: async (req, res) => {
+    try {
+      const countries = await Country.find().populate('language_id').sort({ createdAt: -1 })
+
+      console.log('AAAAAA', countries)
+
+      res.status(200).json({
+        success: true,
+        message: 'Countries fetched successfully',
+        data: countries,
+      });
+    } catch (error) {
+      console.error('Error in getAllCountries:', error);
+      res.status(500).json({ success: false, message: 'Server error' });
+    }
+  },
 };
 
 

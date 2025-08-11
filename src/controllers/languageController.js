@@ -18,7 +18,7 @@ const languageController = {
         console.log('Validation failed for language_name:', language_name);
         return res.status(400).json({
           success: false,
-          message: 'language_name and language_code are required',
+          message: 'Language name and language code are required',
         });
       }
 
@@ -161,6 +161,15 @@ const languageController = {
       const { id } = req.params;
       const updateData = { ...req.body };
       let imageUrl = null;
+      console.log(updateData, 'DDD')
+      const existingLang = await Language.findOne({ language_code: updateData.language_code, _id: { $ne: id } });
+      console.log(existingLang, 'DDD')
+      if (existingLang) {
+        return res.status(400).json({
+          success: false,
+          message: 'Language code already exists',
+        });
+      }
 
       // Parse language_name if it's a string
       // if (req.body.language_name && typeof req.body.language_name === 'string') {
@@ -257,7 +266,22 @@ const languageController = {
     }
   },
 
-
+  getAllLanguagess: async (req, res) => {
+    try {
+      const languages = await Language.find().sort({ createdAt: 1 })
+      res.status(200).json({
+        success: true,
+        message: 'Languages fetched successfully',
+        data: languages,
+      });
+    } catch (error) {
+      console.error('Error in getAllLanguages:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error',
+      });
+    }
+  },
 
 
 };

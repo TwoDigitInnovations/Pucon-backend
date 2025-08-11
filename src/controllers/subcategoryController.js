@@ -10,13 +10,13 @@ const subCategoryController = {
       console.log('req.files:', req.files);
       console.log('=== END DEBUG ===');
 
-      const { category_id, name, status, language_id } = req.body;
+      const { language_id, country, super_category_id, category_id, name, status, order } = req.body;
       let imageUrl = null;
 
-      if (!category_id || !name || !language_id) {
+      if (!language_id || !country || !super_category_id || !category_id || !name) {
         return res.status(400).json({
           success: false,
-          message: 'Category ID, name, and language_id are required',
+          message: 'Language ID, country, super category ID, Category ID and name are required',
         });
       }
 
@@ -53,9 +53,12 @@ const subCategoryController = {
 
       const newSubCategory = new SubCategory({
         language_id,
+        country,
+        super_category_id,
         category_id,
         name: name,
         status,
+        order,
         image: imageUrl
       });
       await newSubCategory.save();
@@ -236,6 +239,24 @@ const subCategoryController = {
       });
     } catch (error) {
       console.error('Error in deleteSubCategory:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Server error',
+      });
+    }
+  },
+
+  getAllSubCategory: async (req, res) => {
+    try {
+      const subCategories = await SubCategory.find().populate('category_id', 'name').populate('language_id').populate('super_category_id').populate('country').sort({ createdAt: -1 })
+
+      res.status(200).json({
+        success: true,
+        message: 'Sub Categories fetched successfully',
+        data: subCategories,
+      });
+    } catch (error) {
+      console.error('Error in getAllSubCategories:', error);
       res.status(500).json({
         success: false,
         message: 'Server error',

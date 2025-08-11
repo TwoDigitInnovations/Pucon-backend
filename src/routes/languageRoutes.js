@@ -5,6 +5,8 @@ const upload = require('../middlewares/upload');
 
 router.get('/', languageController.getAllLanguages);
 
+router.get('/getAllLanguagess', languageController.getAllLanguagess);
+
 router.get('/:id', languageController.getLanguageById);
 
 router.post('/', upload.single('image'), languageController.createLanguage);

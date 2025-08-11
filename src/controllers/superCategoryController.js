@@ -10,15 +10,15 @@ const superCategoryController = {
       console.log('req.files:', req.files);
       console.log('=== END DEBUG ===');
 
-      const { name, description, status, language_id, country } = req.body;
+      const { language_id, name, status, country } = req.body;
       let imageUrl = null;
 
       // Validate required fields
-      if (!name || !language_id) {
+      if (!language_id || !name || !country) {
         console.log('Validation failed for name:', name);
         return res.status(400).json({
           success: false,
-          message: "Name and language_id are required",
+          message: "Language ID, Name and country are required",
         });
       }
 
@@ -54,7 +54,7 @@ const superCategoryController = {
       const newSuperCategory = new SuperCategory({
         language_id,
         name: name,
-        description: description,
+        // description: description,
         status,
         country,
         image: imageUrl
@@ -223,6 +223,21 @@ const superCategoryController = {
     } catch (error) {
       console.error(error);
       res.status(500).send('Server error');
+    }
+  },
+
+  getAllSuperCategory: async (req, res) => {
+    try {
+      const data = await SuperCategory.find().populate('language_id').populate('country').sort({ createdAt: -1 })
+
+      res.status(200).json({
+        success: true,
+        message: "Super Categories fetched successfully",
+        data,
+      });
+    } catch (error) {
+      console.error("Error in getAll super category:", error);
+      res.status(500).json({ success: false, message: "Server error" });
     }
   },
 };

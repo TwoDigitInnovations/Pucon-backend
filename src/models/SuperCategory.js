@@ -11,10 +11,10 @@ const superCategorySchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    description: {
-      type: String,
-      default: '',
-    },
+    // description: {
+    //   type: String,
+    //   default: '',
+    // },
     image: {
       type: String,
       default: null

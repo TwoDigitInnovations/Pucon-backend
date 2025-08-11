@@ -14,6 +14,7 @@ router.use((req, res, next) => {
 
 router.post("/", upload.single('image'), superCategoryController.create);
 router.get("/", superCategoryController.getAll);
+router.get("/getAllSuperCategory", superCategoryController.getAllSuperCategory);
 router.put("/:id", upload.single('image'), superCategoryController.update);
 router.delete("/:id", superCategoryController.delete);
 router.post("/superCategoryById", superCategoryController.superCategoryById);

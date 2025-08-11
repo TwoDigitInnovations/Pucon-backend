@@ -10,19 +10,20 @@ const categoryController = {
       console.log('req.files:', req.files);
       console.log('=== END DEBUG ===');
 
-      const { super_category_id, name, status, language_id } = req.body;
+      const { language_id, super_category_id, name, status, country } = req.body;
       let imageUrl = null;
 
       // Validate required fields
-      if (!super_category_id || !name || !language_id) {
+      if (!language_id || !super_category_id || !name || !country) {
         console.log('Validation failed:', {
           super_category_id,
           name,
-          language_id
+          language_id,
+          country
         });
         return res.status(400).json({
           success: false,
-          message: "Super Category ID, name, and language_id are required",
+          message: "Language ID, super category ID, name and country are required",
         });
       }
 
@@ -60,7 +61,8 @@ const categoryController = {
         super_category_id,
         name: name,
         status,
-        image: imageUrl
+        image: imageUrl,
+        country
       });
       await newCategory.save();
 
@@ -241,16 +243,19 @@ const categoryController = {
     }
   },
 
-  // getCountryByLanguageId: async (req, res) => {
-  //   console.log('AAAAAAA', req.body)
-  //   try {
-  //     const category = await Category.find({ language_id: req.body.language_id });
-  //     res.status(200).json(category);
-  //   } catch (error) {
-  //     console.error(error);
-  //     res.status(500).send('Server error');
-  //   }
-  // },
+  getAllCategory: async (req, res) => {
+    try {
+      const data = await Category.find().populate("super_category_id", "name").populate("language_id").populate("country").sort({ createdAt: -1 })
+      res.status(200).json({
+        success: true,
+        message: "Categories fetched successfully",
+        data,
+      });
+    } catch (error) {
+      console.error("Error in getAll category:", error);
+      res.status(500).json({ success: false, message: "Server error" });
+    }
+  },
 };
 
 module.exports = categoryController;

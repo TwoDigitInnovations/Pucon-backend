@@ -5,6 +5,7 @@ const upload = require('../middlewares/upload');
 
 router.post('/', upload.single('image'), subCategoryController.createSubCategory);
 router.get('/', subCategoryController.getAllSubCategories);
+router.get('/getAllSubCategory', subCategoryController.getAllSubCategory);
 router.put('/:id', upload.single('image'), subCategoryController.updateSubCategory);
 router.delete('/:id', subCategoryController.deleteSubCategory);
 
