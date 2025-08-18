@@ -176,6 +176,8 @@ const contentController = {
 
   contentBySubCategoryId: async (req, res) => {
     try {
+      console.log('AAAAAAA', req.body.sub_category_id);
+
       const content = await Content.findOne({ language_id: req.body.language_id, country: req.body.country, sub_category_id: req.body.sub_category_id });
       res.status(200).json({
         success: true,

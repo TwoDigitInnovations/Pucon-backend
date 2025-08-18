@@ -4,11 +4,11 @@ const cloudinary = require('../config/cloudinary');
 const subCategoryController = {
   createSubCategory: async (req, res) => {
     try {
-      console.log('=== CREATE SUB CATEGORY DEBUG ===');
-      console.log('Full request body:', JSON.stringify(req.body, null, 2));
-      console.log('req.file:', req.file);
-      console.log('req.files:', req.files);
-      console.log('=== END DEBUG ===');
+      // console.log('=== CREATE SUB CATEGORY DEBUG ===');
+      // console.log('Full request body:', JSON.stringify(req.body, null, 2));
+      // console.log('req.file:', req.file);
+      // console.log('req.files:', req.files);
+      // console.log('=== END DEBUG ===');
 
       const { language_id, country, super_category_id, category_id, name, status, order } = req.body;
       let imageUrl = null;
@@ -25,7 +25,7 @@ const subCategoryController = {
       // Handle image upload if file is present
       if (req.file) {
         const imageFile = req.file;
-        console.log('Processing image upload:', imageFile.originalname);
+        // console.log('Processing image upload:', imageFile.originalname);
 
         try {
           // Convert buffer to base64 for Cloudinary
@@ -37,7 +37,7 @@ const subCategoryController = {
             timeout: 60000
           });
           imageUrl = result.secure_url;
-          console.log('Image uploaded successfully:', imageUrl);
+          // console.log('Image uploaded successfully:', imageUrl);
         } catch (uploadError) {
           console.error('Cloudinary upload error:', uploadError);
           return res.status(500).json({
@@ -46,10 +46,10 @@ const subCategoryController = {
           });
         }
       } else {
-        console.log('No image file found in request');
+        // console.log('No image file found in request');
       }
 
-      console.log('Final imageUrl before saving:', imageUrl);
+      // console.log('Final imageUrl before saving:', imageUrl);
 
       const newSubCategory = new SubCategory({
         language_id,
@@ -67,7 +67,7 @@ const subCategoryController = {
       const populatedSubCategory = await SubCategory.findById(newSubCategory._id)
         .populate('category_id', 'name');
 
-      console.log('Saved sub category with image:', populatedSubCategory.image);
+      // console.log('Saved sub category with image:', populatedSubCategory.image);
 
       res.status(201).json({
         success: true,
@@ -263,6 +263,25 @@ const subCategoryController = {
       });
     }
   },
+
+  getSubCategoryBySuperCategoryById: async (req, res) => {
+    console.log('DDD', req.body)
+    try {
+      const subCategories = await SubCategory.find({ super_category_id: req.body.super_category_id, language_id: req.body.language_id }).populate('category_id', 'name')
+        .populate('language_id')
+        .populate('super_category_id')
+        .populate('country');
+      res.status(200).json({
+        success: true,
+        // message: "Super Category deleted successfully",
+        data: subCategories,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Server error');
+    }
+  },
+
 };
 
 module.exports = subCategoryController;
