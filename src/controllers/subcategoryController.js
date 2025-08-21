@@ -267,7 +267,7 @@ const subCategoryController = {
   getSubCategoryBySuperCategoryById: async (req, res) => {
     console.log('DDD', req.body)
     try {
-      const subCategories = await SubCategory.find({ super_category_id: req.body.super_category_id, language_id: req.body.language_id }).populate('category_id', 'name')
+      const subCategories = await SubCategory.find({ super_category_id: req.body.super_category_id, language_id: req.body.language_id, status: active }).populate('category_id', 'name')
         .populate('language_id')
         .populate('super_category_id')
         .populate('country')

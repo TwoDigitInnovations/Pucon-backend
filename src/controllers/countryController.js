@@ -176,7 +176,7 @@ const countryController = {
     try {
 
       // Get paginated data with populated language
-      const countries = await Country.find({ language_id: req.params.lang_id }).sort({ order: 1 });
+      const countries = await Country.find({ language_id: req.params.lang_id, status: active }).sort({ order: 1 });
 
       res.status(200).json({
         success: true,
