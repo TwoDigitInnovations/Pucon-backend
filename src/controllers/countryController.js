@@ -25,7 +25,7 @@ const countryController = {
       // console.log('=== END DEBUG ===');
 
       // Extract country_name and other fields
-      const { country_name, status, language_id } = req.body;
+      const { country_name, order, status, language_id } = req.body;
       let imageUrl = null;
       let mapImageUrl = null;
 
@@ -105,6 +105,7 @@ const countryController = {
         language_id,
         country_name: country_name,
         // country_code,
+        order,
         status,
         image: imageUrl,
         map_image: mapImageUrl

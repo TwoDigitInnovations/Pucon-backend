@@ -10,7 +10,7 @@ const superCategoryController = {
       console.log('req.files:', req.files);
       console.log('=== END DEBUG ===');
 
-      const { language_id, name, status, country } = req.body;
+      const { language_id, name, order, status, country } = req.body;
       let imageUrl = null;
 
       // Validate required fields
@@ -55,6 +55,7 @@ const superCategoryController = {
         language_id,
         name: name,
         // description: description,
+        order,
         status,
         country,
         image: imageUrl

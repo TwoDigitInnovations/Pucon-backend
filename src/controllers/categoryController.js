@@ -10,7 +10,7 @@ const categoryController = {
       console.log('req.files:', req.files);
       console.log('=== END DEBUG ===');
 
-      const { language_id, super_category_id, name, status, country } = req.body;
+      const { language_id, super_category_id, name, order, status, country } = req.body;
       let imageUrl = null;
 
       // Validate required fields
@@ -60,6 +60,7 @@ const categoryController = {
         language_id,
         super_category_id,
         name: name,
+        order,
         status,
         image: imageUrl,
         country

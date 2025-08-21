@@ -27,7 +27,12 @@ const countrySchema = new mongoose.Schema({
     type: String,
     enum: ['active', 'inactive'],
     default: 'active'
-  }
+  },
+  order: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Country', countrySchema);
