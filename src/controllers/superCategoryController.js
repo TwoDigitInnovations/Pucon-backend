@@ -215,7 +215,7 @@ const superCategoryController = {
 
   superCategoryById: async (req, res) => {
     try {
-      const superCategory = await SuperCategory.find({ language_id: req.body.language_id, country: req.body.country, status: active }).sort({ order: 1 });;
+      const superCategory = await SuperCategory.find({ language_id: req.body.language_id, country: req.body.country, status: "active" }).sort({ order: 1 });;
       res.status(200).json({
         success: true,
         // message: "Super Category deleted successfully",
