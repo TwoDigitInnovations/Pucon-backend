@@ -270,7 +270,8 @@ const subCategoryController = {
       const subCategories = await SubCategory.find({ super_category_id: req.body.super_category_id, language_id: req.body.language_id }).populate('category_id', 'name')
         .populate('language_id')
         .populate('super_category_id')
-        .populate('country');
+        .populate('country')
+        .sort({ order: 1 });
       res.status(200).json({
         success: true,
         // message: "Super Category deleted successfully",

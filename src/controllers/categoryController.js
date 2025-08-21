@@ -232,7 +232,7 @@ const categoryController = {
 
   getCategoryBySuperCategoryId: async (req, res) => {
     try {
-      const category = await Category.find({ super_category_id: req.body.super_category_id, language_id: req.body.language_id });
+      const category = await Category.find({ super_category_id: req.body.super_category_id, language_id: req.body.language_id }).sort({ order: 1 });;
       res.status(200).json({
         success: true,
         // message: "Super Category deleted successfully",
