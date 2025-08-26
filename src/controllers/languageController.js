@@ -268,7 +268,7 @@ const languageController = {
 
   getAllLanguagess: async (req, res) => {
     try {
-      const languages = await Language.find().sort({ createdAt: 1 })
+      const languages = await Language.find({ status: "active" }).sort({ createdAt: 1 })
       res.status(200).json({
         success: true,
         message: 'Languages fetched successfully',
