@@ -1,68 +1,78 @@
 const Content = require('../models/Content');
+const cloudinary = require('../config/cloudinary');
 
 const contentController = {
   createContent: async (req, res) => {
     try {
-      // console.log('=== CREATE CONTENT DEBUG ===');
-      // console.log('Full request body:', JSON.stringify(req.body, null, 2));
-      // console.log('=== END DEBUG ===');
-
-      let {
-        language_id,
-        // country_id,
-        country,
-        super_category_id,
-        category_id,
-        sub_category_id,
-        content,
-        status
-      } = req.body;
-
-      // console.log('Extracted values:', {
-      //   language_id,
-      //   // country_id,
-      //   country,
-      //   super_category_id,
-      //   category_id,
-      //   sub_category_id,
-      //   content: content ? 'present' : 'missing',
-      //   status
-      // });
+      let { language_id, country, super_category_id, category_id, sub_category_id, content, status, logo, } = req.body;
 
       if (!language_id || !country || !super_category_id || !category_id || !sub_category_id) {
-        // console.log('Validation failed - missing fields:', {
-        //   hasLanguageId: !!language_id,
-        //   // hasCountryId: !!country_id,
-        //   hasCountryId: !!country,
-        //   hasSuperCategoryId: !!super_category_id,
-        //   hasCategoryId: !!category_id,
-        //   hasSubCategoryId: !!sub_category_id,
-        //   hasContent: !!content,
-        //   contentLength: content ? content.length : 0,
-        //   contentTrimmed: content ? content.trim() : ''
-        // });
         return res.status(400).json({
           success: false,
           message: 'Language, Country, Super Category, Category, and Sub Category are required',
         });
       }
 
-      // Optional content validation
-      if (!content || content.trim() === '') {
-        // console.log('Content is empty, but continuing...');
-        // Set default content if empty
-        content = '<p>No content provided</p>';
+      let imageUrl = null;
+      let carouselImageUrl = [];
+      console.log('AA', req.files)
+      if (req.files.logo) {
+        const imageFile = req.files.logo[0];
+
+        try {
+          const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
+
+          const result = await cloudinary.uploader.upload(base64Image, {
+            folder: 'content',
+            resource_type: 'auto',
+            timeout: 60000
+          });
+          imageUrl = result.secure_url;
+        } catch (uploadError) {
+          console.error('Cloudinary upload error:', uploadError);
+          return res.status(500).json({
+            success: false,
+            message: 'Error uploading image: ' + uploadError.message
+          });
+        }
+      } else {
+        // console.log('No image file found in request');
+      }
+
+      if (req.files.carouselImage) {
+        const imageFile = req.files.carouselImage;
+        try {
+          await Promise.all(imageFile.map(async (file) => {
+            const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+
+            const result = await cloudinary.uploader.upload(base64Image, {
+              folder: 'content',
+              resource_type: 'auto',
+              timeout: 60000
+            });
+            carouselImageUrl.push(result.secure_url)
+          }));
+        } catch (uploadError) {
+          console.error('Cloudinary upload error:', uploadError);
+          return res.status(500).json({
+            success: false,
+            message: 'Error uploading image: ' + uploadError.message
+          });
+        }
+      } else {
+        // console.log('No image file found in request');
       }
 
       const newContent = new Content({
         language_id,
-        // country_id,
         country,
         super_category_id,
         category_id,
         sub_category_id,
         content,
-        status
+        status,
+        logo: imageUrl,
+        carouselImage: carouselImageUrl,
       });
 
       await newContent.save();
@@ -98,7 +108,6 @@ const contentController = {
       if (req.query.subCategory) {
         cond.sub_category_id = req.query.subCategory
       }
-      console.log('AAAAAAAA', cond)
       const totalCount = await Content.countDocuments(cond);
       // Get paginated data with populated fields
       const contents = await Content.find(cond)
@@ -137,6 +146,66 @@ const contentController = {
   updateContent: async (req, res) => {
     try {
       const { id } = req.params;
+      req.body.carouselImage = JSON.parse(req.body.oldImages)
+      let imageUrl = null;
+      let carouselImageUrl = [];
+
+      if (req.files.logo) {
+        const imageFile = req.files.logo[0];
+
+        try {
+          const base64Image = `data:${imageFile.mimetype};base64,${imageFile.buffer.toString('base64')}`;
+
+          const result = await cloudinary.uploader.upload(base64Image, {
+            folder: 'content',
+            resource_type: 'auto',
+            timeout: 60000
+          });
+          imageUrl = result.secure_url;
+        } catch (uploadError) {
+          console.error('Cloudinary upload error:', uploadError);
+          return res.status(500).json({
+            success: false,
+            message: 'Error uploading image: ' + uploadError.message
+          });
+        }
+      } else {
+        // console.log('No image file found in request');
+      }
+
+      if (req.files.carouselImage) {
+        const imageFile = req.files.carouselImage;
+        try {
+          await Promise.all(imageFile.map(async (file) => {
+            const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+
+            const result = await cloudinary.uploader.upload(base64Image, {
+              folder: 'content',
+              resource_type: 'auto',
+              timeout: 60000
+            });
+            carouselImageUrl.push(result.secure_url)
+          }));
+        } catch (uploadError) {
+          console.error('Cloudinary upload error:', uploadError);
+          return res.status(500).json({
+            success: false,
+            message: 'Error uploading image: ' + uploadError.message
+          });
+        }
+      } else {
+        // console.log('No image file found in request');
+      }
+
+      if (imageUrl) {
+        req.body.logo = imageUrl
+      }
+
+      if (carouselImageUrl) {
+        // const newcontent = await Content.findById(id)
+        req.body.carouselImage = [...req.body.carouselImage, ...carouselImageUrl]
+      }
+
       const updated = await Content.findByIdAndUpdate(id, req.body, { new: true })
         .populate('language_id')
         .populate('country')
@@ -147,6 +216,8 @@ const contentController = {
       if (!updated) {
         return res.status(404).json({ success: false, message: 'Content not found' });
       }
+
+
 
       res.status(200).json({
         success: true,
@@ -181,8 +252,6 @@ const contentController = {
 
   contentBySubCategoryId: async (req, res) => {
     try {
-      // console.log('AAAAAAA', req.body.sub_category_id);
-
       const content = await Content.findOne({ language_id: req.body.language_id, country: req.body.country, sub_category_id: req.body.sub_category_id });
       res.status(200).json({
         success: true,

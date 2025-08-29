@@ -40,6 +40,14 @@ const contentSchema = new mongoose.Schema({
     ref: "Country",
     required: true,
   },
+  logo: {
+    type: String,
+    // default: null,
+    required: true,
+  },
+  carouselImage: {
+    type: Array,
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Content', contentSchema);
