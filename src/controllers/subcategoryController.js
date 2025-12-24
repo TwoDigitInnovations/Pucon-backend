@@ -249,7 +249,6 @@ const subCategoryController = {
   getAllSubCategory: async (req, res) => {
     try {
       const subCategories = await SubCategory.find().populate('category_id', 'name').populate('language_id').populate('super_category_id').populate('country').sort({ createdAt: -1 })
-
       res.status(200).json({
         success: true,
         message: 'Sub Categories fetched successfully',
