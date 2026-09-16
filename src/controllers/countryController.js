@@ -177,7 +177,13 @@ const countryController = {
     try {
 
       // Get paginated data with populated language
-      const countries = await Country.find({ language_id: req.params.lang_id, status: "active" }).sort({ order: 1 });
+      const cond = { language_id: req.params.lang_id, status: "active" };
+      // Optional second filter: only the comunas inside the chosen region
+      if (req.query.region) {
+        cond.region = req.query.region;
+      }
+
+      const countries = await Country.find(cond).sort({ order: 1 });
 
       res.status(200).json({
         success: true,
@@ -187,6 +193,27 @@ const countryController = {
       });
     } catch (error) {
       console.error('Error in getAllCountries:', error);
+      res.status(500).json({ success: false, message: 'Server error' });
+    }
+  },
+
+  getRegionsByLang: async (req, res) => {
+    try {
+      // Only surface regions that actually have active comunas, so the app
+      // never offers a region that leads to an empty list.
+      const regions = await Country.distinct('region', {
+        language_id: req.params.lang_id,
+        status: 'active',
+        region: { $nin: [null, ''] },
+      });
+
+      res.status(200).json({
+        success: true,
+        message: 'Regions fetched successfully',
+        data: regions.sort((a, b) => a.localeCompare(b)),
+      });
+    } catch (error) {
+      console.error('Error in getRegionsByLang:', error);
       res.status(500).json({ success: false, message: 'Server error' });
     }
   },
