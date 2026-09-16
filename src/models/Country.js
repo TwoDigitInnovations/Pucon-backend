@@ -15,6 +15,10 @@ const countrySchema = new mongoose.Schema({
     type: String,
     // required: true,
   },
+  region: {
+    type: String,
+    default: ''
+  },
   image: {
     type: String,
     default: null

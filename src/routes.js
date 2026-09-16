@@ -6,6 +6,7 @@ const subcategoryRoutes = require("./routes/subcategoryRoutes");
 const supercategoryRoutes = require("./routes/supercategoryRoutes");
 const userRoutes = require("./routes/user");
 const carouselRoutes = require("./routes/carouselRoutes");
+const homeScreenRoutes = require("./routes/homeScreenRoutes");
 
 module.exports = (app) => {
   app.use('/api/categories', categoryRoutes);
@@ -16,4 +17,5 @@ module.exports = (app) => {
   app.use('/api/supercategories', supercategoryRoutes);
   app.use('/api/user', userRoutes);
   app.use('/api/carousel', carouselRoutes);
+  app.use('/api/homescreen', homeScreenRoutes);
 };
