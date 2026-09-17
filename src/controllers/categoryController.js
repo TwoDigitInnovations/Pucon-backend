@@ -100,7 +100,7 @@ const categoryController = {
       const data = await Category.find(cond)
         .populate("super_category_id", "name")
         .populate("language_id")
-        .populate("country")
+        .populate({ path: 'country', populate: { path: 'region_id' } })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -246,7 +246,7 @@ const categoryController = {
 
   getAllCategory: async (req, res) => {
     try {
-      const data = await Category.find().populate("super_category_id", "name").populate("language_id").populate("country").sort({ createdAt: -1 })
+      const data = await Category.find().populate("super_category_id", "name").populate("language_id").populate({ path: 'country', populate: { path: 'region_id' } }).sort({ createdAt: -1 })
       res.status(200).json({
         success: true,
         message: "Categories fetched successfully",

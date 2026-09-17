@@ -94,7 +94,7 @@ const superCategoryController = {
       // Get paginated data with populated language
       const data = await SuperCategory.find(cond)
         .populate('language_id')
-        .populate('country')
+        .populate({ path: 'country', populate: { path: 'region_id' } })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -229,7 +229,7 @@ const superCategoryController = {
 
   getAllSuperCategory: async (req, res) => {
     try {
-      const data = await SuperCategory.find().populate('language_id').populate('country').sort({ createdAt: -1 })
+      const data = await SuperCategory.find().populate('language_id').populate({ path: 'country', populate: { path: 'region_id' } }).sort({ createdAt: -1 })
 
       res.status(200).json({
         success: true,

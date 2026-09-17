@@ -80,7 +80,7 @@ const contentController = {
       // Populate the saved content before sending response
       const populatedContent = await Content.findById(newContent._id)
         .populate('language_id')
-        .populate('country')
+        .populate({ path: 'country', populate: { path: 'region_id' } })
         .populate('super_category_id')
         .populate('category_id')
         .populate('sub_category_id');
@@ -112,7 +112,7 @@ const contentController = {
       // Get paginated data with populated fields
       const contents = await Content.find(cond)
         .populate('language_id')
-        .populate('country')
+        .populate({ path: 'country', populate: { path: 'region_id' } })
         .populate('super_category_id')
         .populate('category_id')
         .populate('sub_category_id')
@@ -208,7 +208,7 @@ const contentController = {
 
       const updated = await Content.findByIdAndUpdate(id, req.body, { new: true })
         .populate('language_id')
-        .populate('country')
+        .populate({ path: 'country', populate: { path: 'region_id' } })
         .populate('super_category_id')
         .populate('category_id')
         .populate('sub_category_id');

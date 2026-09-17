@@ -1,30 +1,17 @@
 const mongoose = require('mongoose');
 
-const countrySchema = new mongoose.Schema({
+const regionSchema = new mongoose.Schema({
   language_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Language',
     required: true,
   },
-  country_name: {
+  region_name: {
     type: String,
-    required: true
-
-  },
-  country_code: {
-    type: String,
-    // required: true,
-  },
-  region_id: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Region',
-    default: null
+    required: true,
+    trim: true,
   },
   image: {
-    type: String,
-    default: null
-  },
-  map_image: {
     type: String,
     default: null
   },
@@ -40,4 +27,6 @@ const countrySchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-module.exports = mongoose.model('Country', countrySchema);
+regionSchema.index({ language_id: 1, region_name: 1 }, { unique: true });
+
+module.exports = mongoose.model('Region', regionSchema);

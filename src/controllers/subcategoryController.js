@@ -104,7 +104,7 @@ const subCategoryController = {
         .populate('category_id', 'name')
         .populate('language_id')
         .populate('super_category_id')
-        .populate('country')
+        .populate({ path: 'country', populate: { path: 'region_id' } })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -248,7 +248,7 @@ const subCategoryController = {
 
   getAllSubCategory: async (req, res) => {
     try {
-      const subCategories = await SubCategory.find().populate('category_id', 'name').populate('language_id').populate('super_category_id').populate('country').sort({ createdAt: -1 })
+      const subCategories = await SubCategory.find().populate('category_id', 'name').populate('language_id').populate('super_category_id').populate({ path: 'country', populate: { path: 'region_id' } }).sort({ createdAt: -1 })
       res.status(200).json({
         success: true,
         message: 'Sub Categories fetched successfully',
@@ -269,7 +269,7 @@ const subCategoryController = {
       const subCategories = await SubCategory.find({ super_category_id: req.body.super_category_id, language_id: req.body.language_id, status: "active" }).populate('category_id', 'name')
         .populate('language_id')
         .populate('super_category_id')
-        .populate('country')
+        .populate({ path: 'country', populate: { path: 'region_id' } })
         .sort({ order: 1 });
       res.status(200).json({
         success: true,

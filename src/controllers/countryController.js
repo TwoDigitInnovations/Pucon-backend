@@ -1,6 +1,21 @@
 
+const mongoose = require('mongoose');
 const Country = require('../models/Country');
+const Region = require('../models/Region');
 const cloudinary = require('../config/cloudinary');
+
+const resolveRegionId = async (regionId, languageId) => {
+  if (regionId === undefined) return { value: undefined };
+  if (!regionId || regionId === 'null') return { value: null };
+  if (!mongoose.Types.ObjectId.isValid(regionId)) return { error: 'Invalid region' };
+
+  const region = await Region.findById(regionId);
+  if (!region) return { error: 'Selected region does not exist' };
+  if (languageId && String(region.language_id) !== String(languageId)) {
+    return { error: 'Selected region belongs to a different language than the city' };
+  }
+  return { value: region._id };
+};
 
 
 const countryController = {
@@ -25,7 +40,7 @@ const countryController = {
       // console.log('=== END DEBUG ===');
 
       // Extract country_name and other fields
-      const { country_name, region, order, status, language_id } = req.body;
+      const { country_name, region_id, order, status, language_id } = req.body;
       let imageUrl = null;
       let mapImageUrl = null;
 
@@ -41,6 +56,11 @@ const countryController = {
           success: false,
           message: 'City name, and language are required',
         });
+      }
+
+      const regionResult = await resolveRegionId(region_id, language_id);
+      if (regionResult.error) {
+        return res.status(400).json({ success: false, message: regionResult.error });
       }
 
       // const exists = await Country.findOne({ country_code });
@@ -104,7 +124,7 @@ const countryController = {
       const newCountry = new Country({
         language_id,
         country_name: country_name,
-        region,
+        region_id: regionResult.value || null,
         // country_code,
         order,
         status,
@@ -112,6 +132,7 @@ const countryController = {
         map_image: mapImageUrl
       });
       await newCountry.save();
+      await newCountry.populate(['language_id', 'region_id']);
 
       // console.log('Country created successfully:', newCountry._id);
 
@@ -134,9 +155,16 @@ const countryController = {
 
       let cond = {}
       if (req.query.search) {
+        const matchingRegions = await Region.find({
+          region_name: { $regex: req.query.search, $options: "i" },
+        }).distinct('_id');
         cond['$or'] = [
           { country_name: { $regex: req.query.search, $options: "i" } },
+          { region_id: { $in: matchingRegions } },
         ]
+      }
+      if (req.query.region_id) {
+        cond.region_id = req.query.region_id;
       }
 
       // Get total count for pagination
@@ -145,6 +173,7 @@ const countryController = {
       // Get paginated data with populated language
       const countries = await Country.find(cond)
         .populate('language_id')
+        .populate('region_id')
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit);
@@ -179,11 +208,14 @@ const countryController = {
       // Get paginated data with populated language
       const cond = { language_id: req.params.lang_id, status: "active" };
       // Optional second filter: only the comunas inside the chosen region
-      if (req.query.region) {
-        cond.region = req.query.region;
+      if (req.query.region_id) {
+        if (!mongoose.Types.ObjectId.isValid(req.query.region_id)) {
+          return res.status(400).json({ success: false, message: 'Invalid region id' });
+        }
+        cond.region_id = req.query.region_id;
       }
 
-      const countries = await Country.find(cond).sort({ order: 1 });
+      const countries = await Country.find(cond).populate('region_id').sort({ order: 1 });
 
       res.status(200).json({
         success: true,
@@ -197,31 +229,10 @@ const countryController = {
     }
   },
 
-  getRegionsByLang: async (req, res) => {
-    try {
-      // Only surface regions that actually have active comunas, so the app
-      // never offers a region that leads to an empty list.
-      const regions = await Country.distinct('region', {
-        language_id: req.params.lang_id,
-        status: 'active',
-        region: { $nin: [null, ''] },
-      });
-
-      res.status(200).json({
-        success: true,
-        message: 'Regions fetched successfully',
-        data: regions.sort((a, b) => a.localeCompare(b)),
-      });
-    } catch (error) {
-      console.error('Error in getRegionsByLang:', error);
-      res.status(500).json({ success: false, message: 'Server error' });
-    }
-  },
-
   getCountryById: async (req, res) => {
     try {
       const { id } = req.params;
-      const country = await Country.findById(id);
+      const country = await Country.findById(id).populate('language_id').populate('region_id');
       if (!country) {
         return res.status(404).json({ success: false, message: 'Country not found' });
       }
@@ -236,6 +247,22 @@ const countryController = {
     try {
       const { id } = req.params;
       const updateData = { ...req.body };
+      delete updateData.region;
+
+      if (req.body.region_id !== undefined || req.body.language_id) {
+        const existing = await Country.findById(id);
+        if (!existing) {
+          return res.status(404).json({ success: false, message: 'Country not found' });
+        }
+        const languageId = req.body.language_id || existing.language_id;
+        // Changing only the language re-validates the region the city already has
+        const regionId = req.body.region_id !== undefined ? req.body.region_id : existing.region_id;
+        const regionResult = await resolveRegionId(regionId ? String(regionId) : '', languageId);
+        if (regionResult.error) {
+          return res.status(400).json({ success: false, message: regionResult.error });
+        }
+        updateData.region_id = regionResult.value;
+      }
 
       // Extract country_name if it exists
       const { country_name } = req.body;
@@ -306,7 +333,9 @@ const countryController = {
         }
       }
 
-      const updated = await Country.findByIdAndUpdate(id, updateData, { new: true });
+      const updated = await Country.findByIdAndUpdate(id, updateData, { new: true })
+        .populate('language_id')
+        .populate('region_id');
       if (!updated) {
         return res.status(404).json({ success: false, message: 'Country not found' });
       }
@@ -351,9 +380,7 @@ const countryController = {
 
   getAllCountry: async (req, res) => {
     try {
-      const countries = await Country.find().populate('language_id').sort({ createdAt: -1 })
-
-      console.log('AAAAAA', countries)
+      const countries = await Country.find().populate('language_id').populate('region_id').sort({ createdAt: -1 })
 
       res.status(200).json({
         success: true,
