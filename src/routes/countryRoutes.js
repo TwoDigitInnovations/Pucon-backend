@@ -10,7 +10,6 @@ router.post('/', upload.fields([
 router.get('/', countryController.getAllCountries);
 router.get('/getAllCountry', countryController.getAllCountry);
 router.get('/getAllCountriesByLang/:lang_id', countryController.getAllCountriesByLang);
-router.get('/getRegionsByLang/:lang_id', countryController.getRegionsByLang);
 router.get('/:id', countryController.getCountryById);
 router.put('/:id', upload.fields([
   { name: 'image', maxCount: 1 },

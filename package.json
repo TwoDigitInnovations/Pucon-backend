@@ -9,6 +9,7 @@
     "logs": "pm2 log",
     "restart": "pm2 restart all --update-env",
     "start:dev": "nodemon src/server.js",
+    "migrate:regions": "node src/scripts/migrateRegions.js",
     "test": "set NODE_ENV=test&&mocha --timeout 15000 --colors --verbose -- __tests__/**/*.js"
   },
   "dependencies": {
